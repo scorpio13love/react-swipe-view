@@ -14,6 +14,8 @@ class SwipeView extends Component {
     this.moveDelta = 0
     this.moveStartT = 0
     this.disableNodeList = null
+    // FIXME: 用于判断角度是否大于45度
+    this.angleOver45 = false
   }
   componentDidMount () {
     this.containerRef.current.style.transform = `translate3d(${-1 * this.props.cur * this.props.tabWidth}px, 0, 0)`
@@ -54,6 +56,14 @@ class SwipeView extends Component {
       if ((deltaX > 0 && this.props.cur === 0) || (deltaX < 0 && this.props.cur === this.props.num - 1)) {
         return
       }
+        // FIXME:
+        // y 大于 x 则判断为上下滑
+        if(Math.abs(deltaY) > Math.abs(deltaX)){
+          this.angleOver45 = true
+          return 
+        } else {
+          this.angleOver45 = false
+        }
       this.containerRef.current.style.transform = `translate3d(${-1 * this.props.cur * this.props.tabWidth + deltaX}px, 0, 0)`
     }
   }
@@ -63,7 +73,9 @@ class SwipeView extends Component {
     const gapT = Date.now() - this.moveStartT
     let cur = this.props.cur
     if (this.isSwipe === 1) {
-      if (gapT < this.props.fastSwipeTime || Math.abs(this.moveDelta) >= this.props.tabWidth / 2) {
+      // if (gapT < this.props.fastSwipeTime || Math.abs(this.moveDelta) >= this.props.tabWidth / 2) {
+      // FIXME: 增加角度判断
+      if ( (gapT < this.props.fastSwipeTime || Math.abs(this.moveDelta) >= this.props.tabWidth / 2 ) && !this.angleOver45) {
         cur = this.moveDelta > 0 ? Math.max(this.props.cur - 1, 0) : Math.min(this.props.cur  + 1, this.props.num - 1)
         this.props.tabChange(cur)
       }
